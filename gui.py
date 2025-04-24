@@ -24,7 +24,7 @@ class VentanaPrincipal(tk.Tk):
         self.btnElegirCarpetaFuente = ttk.Button(self.frame_principal, text="Carpeta Fuente ...", command=lambda:neg.ingresar_Carpeta_Fuente(self.txtCarpetaFuente))
         self.btnElegirCarpetaFuente.grid(row=0, column=6)
 
-        self.btnElegirStockXDepo = ttk.Button(self.frame_principal, text="Stock x Deposito ...", command=neg.ingresar_Stock_X_Deposito)
+        self.btnElegirStockXDepo = ttk.Button(self.frame_principal, text="Stock x Deposito ...", command=lambda:neg.ingresar_Stock_X_Deposito(self.txtStockXDepo))
         self.btnElegirStockXDepo.grid(row=2, column=6)
 
         self.btnElegirDestino = ttk.Button(self.frame_principal, text="Guardar Como ...", command=lambda:neg.guardar_Como(self.txtArchivoDestino))

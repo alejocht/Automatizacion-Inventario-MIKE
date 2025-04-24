@@ -5,10 +5,23 @@ from tkinter import Tk, filedialog, messagebox
 class Utilidad:
     def __init__(self):
         self.ruta = ""
+        self.rutaStockXDepo = ""
         self.destinoExportado = ""
         self.dataframes = []
         self.df_consolidado = None
-    
+        self.df_agrupado = None
+        self.df_stockXDepo = None
+        self.df_comparacion = None
+        
+    def seleccionar_archivo(self):
+        try:
+            root = Tk()
+            root.withdraw()
+            rutaArchivo = filedialog.askopenfilename(title="Selecciona el Stock por Deposito")
+            self.rutaStockXDepo = rutaArchivo
+        except Exception as e:
+            messagebox.showerror("Error al seleccionar Stock por Deposito", f"{e}")
+
     def seleccionar_directorio(self):
         try:
             root = Tk()
@@ -65,7 +78,7 @@ class Utilidad:
                         #Agregar a la lista de los dataframes
                         listaDataframes.append(df)
                 except Exception as e:
-                    messagebox.showerror(f"Error leyendo", "Error leyendo '{file}': {e}")
+                    messagebox.showerror("Error leyendo", f"Error leyendo '{file}': {e}")
             return listaDataframes
         except Exception as e:
             messagebox.showerror("Error en devolver DataFrames del directorio", f"{e}")
@@ -105,8 +118,37 @@ class Utilidad:
             dataframe.to_excel(nombreNuevoArchivo, index=False)
         except Exception as e:
             messagebox.showerror("Error al exportar", f"Error al exportar archivo {nombreNuevoArchivo} : {e}")
-        
 
+    @staticmethod
+    def generar_reporte(dataframeConsolidado, dataFrameAgrupado, dataframeComparacion, nombreNuevoArchivo):
+        try:
+            with pandas.ExcelWriter(nombreNuevoArchivo, engine='openpyxl') as writer:
+                dataframeConsolidado.to_excel(writer, sheet_name='Consolidacion', index=False)
+                dataFrameAgrupado.to_excel(writer, sheet_name='Resumen agrupado', index=False)
+                dataframeComparacion.to_excel(writer, sheet_name='Comparacion', index=False)
+
+        except Exception as e:
+            messagebox.showerror("Error al Exportar Archivo", f"{e}")
+    
+    def leerStockXDeposito(self):
+        try:
+            self.df_stockXDepo = pandas.read_excel(self.rutaStockXDepo, sheet_name='hoja1', usecols="A,B,C,D,E,F,G" )
+            self.df_stockXDepo.columns = ['Producto', 'Codigo', 'Deposito', 'Cantidad', 'Unidad','Familia','Activo']
+            self.df_stockXDepo = self.df_stockXDepo[self.df_stockXDepo['Deposito'] == 'ENTREGA']
+        except Exception as e:
+            messagebox.showerror("Error al leer Stock por Deposito", f"{e}" )
+    
+    def comparar_inventarios(self):
+        try:
+            self.df_stockXDepo = self.df_stockXDepo.rename(columns={"Cantidad" : "Cantidad_Sistema"})
+            self.df_agrupado = self.df_agrupado.rename(columns={"Cantidad":"Cantidad_Inventario"})
+            self.df_agrupado = self.df_agrupado[self.df_agrupado['Stock o Cliente'] == "ENTREGA"]
+            self.df_comparacion = pandas.merge(self.df_stockXDepo, self.df_agrupado, on='Codigo', how='outer')
+            self.df_comparacion['Cantidad_Sistema'] = self.df_comparacion['Cantidad_Sistema'].fillna(0)
+            self.df_comparacion['Cantidad_Inventario'] = self.df_comparacion['Cantidad_Inventario'].fillna(0)
+            self.df_comparacion['Diferencia'] = self.df_comparacion['Cantidad_Sistema'] - self.df_comparacion['Cantidad_Inventario']
+        except Exception as e:
+            messagebox.showerror("Error al comparar inventarios", f"{e}")
 
 
 
