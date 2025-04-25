@@ -134,38 +134,26 @@ class Utilidad:
         try:
             self.df_stockXDepo = pandas.read_excel(self.rutaStockXDepo, sheet_name='hoja1', usecols="A,B,C,D,E,F,G" )
             self.df_stockXDepo.columns = ['Producto', 'Codigo', 'Deposito', 'Cantidad', 'Unidad','Familia','Activo']
-            self.df_stockXDepo = self.df_stockXDepo[self.df_stockXDepo['Deposito'] == 'ENTREGA']
         except Exception as e:
             messagebox.showerror("Error al leer Stock por Deposito", f"{e}" )
     
     def comparar_inventarios(self):
         try:
+            REEMPLAZOS = {'CLIENTE':'ENTREGA', 'CLIENTE ':'ENTREGA', 'STOCK':'ENTREGA INM.', 'STOCK ':'ENTREGA INM.'}
+            df_agrupado_copia = self.df_agrupado
+
+            df_agrupado_copia = df_agrupado_copia.replace(REEMPLAZOS)
+
             self.df_stockXDepo = self.df_stockXDepo.rename(columns={"Cantidad" : "Cantidad_Sistema"})
-            self.df_agrupado = self.df_agrupado.rename(columns={"Cantidad":"Cantidad_Inventario"})
-            self.df_agrupado = self.df_agrupado[self.df_agrupado['Stock o Cliente'] == "ENTREGA"]
-            self.df_comparacion = pandas.merge(self.df_stockXDepo, self.df_agrupado, on='Codigo', how='outer')
+            df_agrupado_copia = df_agrupado_copia.rename(columns={"Cantidad":"Cantidad_Inventario"})
+            df_agrupado_copia = df_agrupado_copia.rename(columns={"Stock o Cliente":"Deposito"})
+            
+            self.df_comparacion = pandas.merge(self.df_stockXDepo, df_agrupado_copia, on=['Codigo', 'Deposito'], how='outer')
             self.df_comparacion['Cantidad_Sistema'] = self.df_comparacion['Cantidad_Sistema'].fillna(0)
             self.df_comparacion['Cantidad_Inventario'] = self.df_comparacion['Cantidad_Inventario'].fillna(0)
             self.df_comparacion['Diferencia'] = self.df_comparacion['Cantidad_Sistema'] - self.df_comparacion['Cantidad_Inventario']
+
+            self.df_comparacion = self.df_comparacion[['Producto', 'Codigo', 'Deposito', 'Cantidad_Sistema', 'Cantidad_Inventario', 'Diferencia', 'Unidad', 'Familia', 'Activo']]
         except Exception as e:
             messagebox.showerror("Error al comparar inventarios", f"{e}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
 
