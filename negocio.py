@@ -60,3 +60,6 @@ def procesar_Datos():
     util.comparar_inventarios()
     util.generar_reporte(util.df_consolidado, util.df_agrupado, util.df_comparacion, util.destinoExportado)
     messagebox.showinfo("Reporte creado Exitosamente", f"Guardado en: {util.destinoExportado}")
+
+def ayuda():
+    messagebox.showinfo("Como usar","Elegir la carpeta donde estan las planillas\nCargar Stock por Deposito\nSeleccionar destino")
