@@ -32,7 +32,7 @@ class Utilidad:
             messagebox.showerror("Error al seleccionar Datos Fuente", f"{e}")
    
     @staticmethod
-    def guardar_Como(defecto="reporte.xlsx"):
+    def guardar_Como(defecto="reportelocales.xlsx"):
         try:
             #Abre el explorador de windows para elegir nombre y destino del archivo
             archivo = filedialog.asksaveasfilename(title="Guardar archivo como...", defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")], initialfile=defecto)
@@ -151,7 +151,7 @@ class Utilidad:
             self.df_comparacion = pandas.merge(self.df_stockXDepo, df_agrupado_copia, on=['Codigo', 'Deposito'], how='outer')
             self.df_comparacion['Cantidad_Sistema'] = self.df_comparacion['Cantidad_Sistema'].fillna(0)
             self.df_comparacion['Cantidad_Inventario'] = self.df_comparacion['Cantidad_Inventario'].fillna(0)
-            self.df_comparacion['Diferencia'] = self.df_comparacion['Cantidad_Sistema'] - self.df_comparacion['Cantidad_Inventario']
+            self.df_comparacion['Diferencia'] = self.df_comparacion['Cantidad_Inventario'] - self.df_comparacion['Cantidad_Sistema']
 
             self.df_comparacion = self.df_comparacion[['Producto', 'Codigo', 'Deposito', 'Cantidad_Sistema', 'Cantidad_Inventario', 'Diferencia', 'Unidad', 'Familia', 'Activo']]
         except Exception as e:
